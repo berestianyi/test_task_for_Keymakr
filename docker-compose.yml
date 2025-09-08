@@ -1,0 +1,58 @@
+services:
+
+  redis:
+    image: redis:latest
+    command: [ "redis-server", "--save", "", "--appendonly", "no" ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+
+  worker:
+    image: ${APP_IMAGE}
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: >
+      celery -A application.shared.celery worker -l info
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      CSV_DIR: /app/data/csv
+    volumes:
+      - ./src:/app/src:rw
+      - ./data/csv:/app/data/csv
+    restart: unless-stopped
+
+  flower:
+    image: mher/flower
+    container_name: flower
+    command: celery flower
+    working_dir: /app/data/
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    ports:
+      - "5555:5555"
+    restart: unless-stopped
+    depends_on:
+      - worker
+
+
+  http-server:
+    image: ${APP_IMAGE}
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: uvicorn application.shared.asgi:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      UV_CACHE_DIR: app/.cache/uv
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src:rw
+      - ./.docker-artifacts/cache/uv:/app/.cache/uv
