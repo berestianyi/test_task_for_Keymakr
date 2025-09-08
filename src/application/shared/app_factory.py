@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.application.config import settings
+from src.interfaces.api.routers.tasks import task_router
 
 
 def create_app() -> FastAPI:
@@ -17,5 +18,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.include_router(task_router)
 
     return app
