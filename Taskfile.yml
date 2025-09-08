@@ -1,0 +1,54 @@
+version: '3'
+
+silent: true
+
+env:
+  APP_IMAGE: test-task-for-keymakr-app:latest
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  MY_UID:
+    sh: echo "$(id -u):$(id -g)"
+  MY_GID:
+    sh: echo "$(id -g)"
+  MY_GUID:
+    sh: echo "$(id -u):$(id -g)"
+
+tasks:
+  build-app-image:
+    internal: true
+    summary: "Build application image"
+    sources:
+      - Taskfile.yml
+      - tools/docker/app.dockerfile
+      - pyproject.toml
+      - uv.lock
+    status:
+      - docker image inspect $APP_IMAGE > /dev/null
+    cmd: >
+      docker build 
+      -t $APP_IMAGE
+      -f tools/docker/app.dockerfile
+      --build-arg USER_ID=$MY_UID
+      --build-arg GROUP_ID=$MY_GID
+      --target app
+      .
+
+  run-app:
+    summary: "Run app"
+    deps:
+      - build-app-image
+    cmd: >
+      docker compose up --build
+
+
+  compose-down:
+    summary: "Docker compose down"
+    cmd: >
+      docker compose down
+
+  init:
+    summary: "Initialize workspace (uv, hooks, caches)"
+    cmds:
+      - uv sync
+      - echo "Workspace initialized :3"
