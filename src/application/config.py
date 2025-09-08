@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     REDIS_URL: str = "redis://:redispass@redis:6379/0"
+    CELERY_BROKER_URL: str = "redis://:redispass@redis:6379/1"
+    CELERY_RESULT_BACKEND: str = "redis://:redispass@redis:6379/2"
 
     model_config = SettingsConfigDict(
         env_file=".env",
