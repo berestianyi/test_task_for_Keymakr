@@ -11,7 +11,7 @@ from src.use_cases.tasks.get_list.use_case import TaskGetListUseCase
 from src.use_cases.tasks.update.ports import TaskUpdateInput
 from src.use_cases.tasks.update.use_case import TaskUpdateUseCase
 
-task_router = APIRouter(prefix="/tasks", tags=["tasks"])
+task_router = APIRouter(prefix="/tasks", tags=["TASK_1"])
 
 
 @task_router.post("", response_model=TaskOutput, status_code=201)
