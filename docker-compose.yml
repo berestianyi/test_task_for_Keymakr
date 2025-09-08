@@ -18,7 +18,7 @@ services:
       redis:
         condition: service_healthy
     command: >
-      celery -A application.shared.celery worker -l info
+      celery -A src.application.shared.celery worker -l info
     environment:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
@@ -26,6 +26,25 @@ services:
     volumes:
       - ./src:/app/src:rw
       - ./data/csv:/app/data/csv
+    restart: unless-stopped
+
+  beat:
+    image: ${APP_IMAGE}
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: >
+      celery -A src.application.shared.celery beat -l info
+      --pidfile /app/data/celerybeat/beat.pid
+      --schedule /app/data/celerybeat/schedule.db
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      CSV_DIR: /app/data/csv
+    volumes:
+      - ./src:/app/src:rw
+      - ./data/csv:/app/data/csv
+      - ./data/celerybeat:/app/data/celerybeat
     restart: unless-stopped
 
   flower:
@@ -48,7 +67,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    command: uvicorn application.shared.asgi:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.application.shared.asgi:app --host 0.0.0.0 --port 8000 --reload
     environment:
       UV_CACHE_DIR: app/.cache/uv
     ports:
@@ -56,3 +75,4 @@ services:
     volumes:
       - ./src:/app/src:rw
       - ./.docker-artifacts/cache/uv:/app/.cache/uv
+      - ./data/csv:/app/data/csv

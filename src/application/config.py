@@ -1,5 +1,6 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import AnyHttpUrl, field_validator, model_validator
+from pydantic import AnyHttpUrl, field_validator, model_validator, AnyUrl
 
 
 class Settings(BaseSettings):
@@ -9,9 +10,12 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
-    REDIS_URL: str = "redis://:redispass@redis:6379/0"
-    CELERY_BROKER_URL: str = "redis://:redispass@redis:6379/1"
-    CELERY_RESULT_BACKEND: str = "redis://:redispass@redis:6379/2"
+    REDIS_URL: str = "redis://redis:6379/0"
+    CELERY_BROKER_URL: str = "redis://redis:6379/1"
+    CELERY_RESULT_BACKEND: str = "redis://redis:6379/2"
+
+    USERS_API_URL: str = "https://jsonplaceholder.typicode.com/users"
+    USERS_CSV_PATH: Path = Path("/app/data/csv")
 
     model_config = SettingsConfigDict(
         env_file=".env",
