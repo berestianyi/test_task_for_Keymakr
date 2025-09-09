@@ -60,7 +60,7 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
     ports:
-      - "5555:5555"
+      - "5559:5555"
     restart: unless-stopped
     depends_on:
       - worker
@@ -75,7 +75,7 @@ services:
     environment:
       UV_CACHE_DIR: app/.cache/uv
     ports:
-      - "8000:8000"
+      - "8005:8000"
     volumes:
       - ./src:/app/src:rw
       - ./.docker-artifacts/cache/uv:/app/.cache/uv
