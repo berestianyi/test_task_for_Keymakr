@@ -8,7 +8,12 @@ wheels/
 
 # Virtual environments
 .venv
+
+
+
 .idea
-data
+data/celerybeat
+data/csv
+data/models
 .docker-artifacts
 .task
