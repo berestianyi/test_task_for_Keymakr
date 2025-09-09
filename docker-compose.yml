@@ -26,6 +26,8 @@ services:
     volumes:
       - ./src:/app/src:rw
       - ./data/csv:/app/data/csv
+      - ./data/ml:/app/data/ml
+      - ./data/models:/app/data/models
     restart: unless-stopped
 
   beat:
@@ -45,6 +47,8 @@ services:
       - ./src:/app/src:rw
       - ./data/csv:/app/data/csv
       - ./data/celerybeat:/app/data/celerybeat
+      - ./data/ml:/app/data/ml
+      - ./data/models:/app/data/models
     restart: unless-stopped
 
   flower:
@@ -76,3 +80,5 @@ services:
       - ./src:/app/src:rw
       - ./.docker-artifacts/cache/uv:/app/.cache/uv
       - ./data/csv:/app/data/csv
+      - ./data/ml:/app/data/ml
+      - ./data/models:/app/data/models
