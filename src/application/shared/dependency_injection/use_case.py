@@ -1,5 +1,7 @@
 from fastapi import Depends
 
+from src.persistence.gateway.ml.joblib_model import JoblibModelGateway
+from src.use_cases.ml.predict.use_case import PredictPriorityUseCase
 from .persistence import get_task_gateway
 from src.persistence.gateway.tasks import TaskGateway
 from src.use_cases.tasks.create.use_case import TaskCreateUseCase
@@ -32,3 +34,6 @@ def get_task_list_use_case(
         gateway: TaskGateway = Depends(get_task_gateway),
 ):
     return TaskGetListUseCase(gateway)
+
+def get_ml_predict_use_case():
+    return PredictPriorityUseCase(JoblibModelGateway())
